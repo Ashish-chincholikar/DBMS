@@ -1,0 +1,175 @@
+AIM :  Design at least 10 SQL queries for suitable database application using SQL DML 
+statements: Insert, Select, Update, Delete with operators, functions, and set operator, 
+all types of Join, Sub-Query and View
+
+consider the following schema
+
+dept(dno(primary key) , dname)
+emp(eno(primary key) , ename , esal , edesg , dno(foreign key))
+
+create the tables : 
+==============emp table================
+CREATE TABLE emp (
+    eno   INTEGER PRIMARY KEY,
+    ename VARCHAR,
+    esal  NUMERIC,
+    edesg VARCHAR,
+    dno   INTEGER REFERENCES dept (dno) 
+);
+============dept table==================
+CREATE TABLE dept (
+    dno   INTEGER PRIMARY KEY AUTOINCREMENT,
+    dname VARCHAR
+);
+=========================================
+let usp perform some insertion opertain on 
+both the tables
+example:--->on dept table
+insert into dept values(1 , "computer")
+
+example: --->on emp table
+insert into emp values(1 , "Ajinkiya" , 25000 , "prof" ,1 )
+
+===========================================
+dno	dname
+4	Electrical
+3	Civil
+2	IT
+1	computer
+===========================================
+eno	ename	 	esal	edesg	 	dno
+4	Rahul	 	1000	prof	 	4
+3	pankaj 	15000	Asst.prof	3
+2	Kunal	 	22000	Asst.prof	2
+1	Ajinkiya	25000	prof	      1
+
+
+--perform some basic operations
+-->display employee name having sal 10000 and dept no 4
+SELECT ename
+  FROM emp
+ WHERE esal = 10000 AND 
+       dno = 4;
+
+--output: Rahul
+
+-->display names of assistant prof 
+SELECT ename
+  FROM emp
+ WHERE edesg = "Asst.prof";
+
+--ename
+--Kunal
+--pankaj
+
+-->display minimun salary
+SELECT min(esal) 
+  FROM emp;
+
+--min(esal)
+--15000
+
+-->count the number of employees 
+SELECT count( * ) 
+  FROM emp;
+
+--count(*)
+--4
+
+-->display name of employee who has minimmum salary
+-->using subquery
+
+SELECT ename
+  FROM emp
+ WHERE esal = (
+                  SELECT min(esal) 
+                    FROM emp
+              );
+--ename
+--Rahul
+
+--> display the employee name who belongs to computer dept
+-->using join
+SELECT ename
+  FROM emp,
+       dept
+ WHERE emp.dno = dept.dno AND 
+       dname = "computer";
+
+--ename
+--Ajinkiya
+
+-->inner join
+SELECT *
+  FROM dept
+       INNER JOIN
+       emp ON dept.dno = emp.dno;
+
+dno	dname	eno	ename	esal	edesg	dno:1
+1	computer	1	Ajinkiya	25000	prof	1
+2	IT	2	Kunal	22000	Asst.prof	2
+3	Civil	3	pankaj	15000	Asst.prof	3
+
+--display the employee name who belongs to computer dept
+SELECT ename
+  FROM emp
+       INNER JOIN
+       dept ON dept.dno = emp.dno
+ WHERE dname = "computer";
+
+--ename
+--Ajinkiya
+
+-->left join
+SELECT *
+  FROM emp
+       LEFT JOIN
+       dept ON emp.dno = dept.dno;
+       
+eno	ename	esal	edesg	dno	dno:1	dname
+1	Ajinkiya	25000	prof	1	1	computer
+2	Kunal	22000	Asst.prof	2	2	IT
+3	pankaj	15000	Asst.prof	3	3	Civil
+
+-->Right join
+SELECT *
+  FROM emp
+       JOIN
+       dept ON emp.dno = dept.dno;
+
+-->update
+UPDATE emp
+   SET ename = "paresh",
+       edesg = 'clerk'
+ WHERE eno = 3;
+
+select * from emp;
+
+eno	ename	esal	edesg	dno
+1	Ajinkiya	25000	prof	1
+2	Kunal	22000	Asst.prof	2
+3	paresh	15000	clerk	3
+
+--update
+UPDATE emp
+   SET ename = "Aniket",
+       edesg = 'HOD'
+ WHERE eno = 1 AND 
+       esal = 25000;
+
+Select * from emp;
+
+eno	ename	esal	edesg	dno
+1	Aniket	25000	HOD	1
+2	Kunal	22000	Asst.prof	2
+
+--delete
+DELETE FROM emp
+      WHERE eno = 3;
+
+
+--view
+CREATE VIEW test_view AS
+    SELECT *
+      FROM emp
+     WHERE edesg = 'HOD';
