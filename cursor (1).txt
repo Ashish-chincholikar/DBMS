@@ -1,0 +1,76 @@
+Implement a cursor to fetch and copy all records from one table to another table . 
+create on PL/SQL block procedure and implement cursor to insert record one by one 
+from first table to second table.
+
+steps: 1) create two tables student1 and student2 with attributes (rollno, name , class)
+2) insert some records in first table , the record in student2 table must be inserted through 
+a cursor
+3) then open text editor - create procedure and inside the procedure implement cursor
+and then call the procedure to see whether all record have been inserted from student1 to 
+student2 table.
+===============================================================
+mysql> create table student1 (roll_no int(4) primary key , name varchar(20) , class varchar(20));
+Query OK, 0 rows affected, 1 warning (0.10 sec)
+
+mysql> create table student2 (roll_no int(4) primary key , name varchar(20) , class varchar(20));
+Query OK, 0 rows affected, 1 warning (0.09 sec)
+
+mysql> insert into student1 values(1  , "rahul" , "SY");
+Query OK, 1 row affected (0.08 sec)
+
+mysql> insert into student1 values(2  , "prakash" , "TY");
+Query OK, 1 row affected (0.03 sec)
+
+mysql> insert into student1 values(3  , "shubham" , "FY");
+Query OK, 1 row affected (0.04 sec)
+
+mysql> insert into student1 values(4  , "Sanket" , "Btech");
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from student1;
++---------+---------+-------+
+| roll_no | name    | class |
++---------+---------+-------+
+|       1 | rahul   | SY    |
+|       2 | prakash | TY    |
+|       3 | shubham | FY    |
+|       4 | Sanket  | Btech |
++---------+---------+-------+
+
+==============================================================
+Delimiter //
+create procedure proc_copy()
+begin
+	declare vfinished int default 0;
+	declare r int;
+	declare n varchar(20);
+	declare c varchar(20);
+	declare stud_cursor cursor for select * from student1;
+	declare continue handler for NOT FOUND set vfinished = 1;
+open stud_cursor;
+getdata:loop
+fetch stud_cursor into r , n , c;
+if vfinished = 1 then leave getdata;
+end if;
+insert into student2 values (r,n,c);
+end loop getdata;
+end //
+===============================================================
+
+mysql> source /home/ashish/proc_copy.sql
+Query OK, 0 rows affected (0.03 sec)
+
+call proc_copy() 
+    -> //
+
+select * from student2;
+    -> //
++---------+---------+-------+
+| roll_no | name    | class |
++---------+---------+-------+
+|       1 | rahul   | SY    |
+|       2 | prakash | TY    |
+|       3 | shubham | FY    |
+|       4 | Sanket  | Btech |
++---------+---------+-------+
+
