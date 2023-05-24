@@ -1,0 +1,77 @@
+ create table library(roll_no int(4) primary key , Date_of_issue Date , Name_of_book varchar(20) , status varchar(5));
+Query OK, 0 rows affected, 1 warning (0.16 sec)
+
+ create table fine(roll_no int(4) , Date_of_return varchar(20) , amount int(4));
+Query OK, 0 rows affected, 2 warnings (0.09 sec)
+	
+mysql> desc library;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| roll_no       | int         | NO   | PRI | NULL    |       |
+| Date_of_issue | date        | YES  |     | NULL    |       |
+| Name_of_book  | varchar(20) | YES  |     | NULL    |       |
+| status        | varchar(5)  | YES  |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+4 rows in set (0.05 sec)
+
+mysql> insert into library values(1 , "23/05/20" , "let us C" , "I");
+Query OK, 1 row affected, 1 warning (0.06 sec)
+
+mysql> insert into library values(2 , "23/05/2" , "software approch" , "I");
+Query OK, 1 row affected, 1 warning (0.06 sec)
+
+mysql> insert into library values(3 , "23/05/5" , "Intro to DBMS" , "I");
+Query OK, 1 row affected, 1 warning (0.04 sec)
+
+mysql> insert into library values(4 , "23/05/10" , "ADS" , "I");
+mysql> insert into library values(5 , "23/04/10" , "DBMS" , "I");
+
+
+=======================================================================
+Delimiter //
+	create procedure calfine(rno integer , n_book varchar(10))
+	begin
+	declare no_of_days int;
+	declare fine_amount int;
+	declare date1 date;
+	select date_of_issue into date1 from library 
+	where Roll_no = rno and Name_of_book = n_book;
+set no_of_days = datediff(curdate() , date1);
+if no_of_days > 15 and no_of_days <30 then
+set fine_amount = (no_of_days -15)*5;
+end if;
+
+if no_of_days>30 then
+set fine_amount = ((no_of_days-15)-(no_of_days - 30))*5+(no_of_days - 30)*50;
+end if;
+select concat("fine is:" , fine_amount);
+
+if fine_amount > 0 then
+	insert into fine values(r_no , curdate() , fine_amount);
+	update library set status = "R" where Roll_no = rno;
+End if;
+end //
+
+=======================================================================
+source /home/ashish/a.sql;
+Query OK, 0 rows affected (0.06 sec)
+
+call calfine(5 ,"DBMS")//
++----------------------------------+
+| concat("fine is:" , fine_amount) |
++----------------------------------+
+| fine is:775                      |
++----------------------------------+
+
+
++---------+---------------+------------------+--------+
+| roll_no | Date_of_issue | Name_of_book     | status |
++---------+---------------+------------------+--------+
+|       1 | 2023-05-20    | let us C         | I      |
+|       2 | 2023-05-02    | software approch | I      |
+|       3 | 2023-05-05    | Intro to DBMS    | I      |
+|       4 | 2023-05-10    | ADS              | I      |
+|       5 | 2023-04-10    | DBMS             | R     |
++---------+---------------+------------------+--------+
+
